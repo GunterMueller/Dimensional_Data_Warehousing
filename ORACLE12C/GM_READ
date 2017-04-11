@@ -1,0 +1,149 @@
+Generally speaking a schema in oracle is the same as an user. Oracle Database automatically creates a schema when you create a user. A file with the DDL file extension is an SQL Data Definition Language file.
+
+Creating new user (using SQL Plus)
+
+Basic SQL Plus commands:
+
+  - connect: connects to a database
+  - disconnect: logs off but does not exit
+  - exit: exists
+
+Open SQL Plus and log:
+
+/ as sysdba
+
+The sysdba is a role and is like "root" on unix or "Administrator" on Windows. It sees all, can do all. Internally, if you connect as sysdba, your schema name will appear to be SYS.
+
+Create an user:
+
+SQL> create user johny identified by 1234;
+
+View all users and check if the user johny is there:
+
+SQL> select username from dba_users;
+
+If you try to login as johny now you would get an error:
+
+ERROR:
+ORA-01045: user JOHNY lacks CREATE SESSION privilege; logon denied
+
+The user to login needs at least create session priviledge so we have to grant this privileges to the user:
+
+SQL> grant create session to johny;
+
+Now you are able to connect as the user johny:
+
+username: johny
+password: 1234
+
+To get rid of the user you can drop it:
+
+SQL> drop user johny;
+
+That was basic example to show how to create an user. It might be more complex. Above we created an user who's objects are stored in the database default tablespace. To have database tidy we should place users objects to his own space (tablespace is an allocation of space in the database that can contain schema objects).
+
+Show already created tablespaces:
+
+SQL> select tablespace_name from dba_tablespaces;
+
+Create tablespace:
+
+SQL> create tablespace johny_tabspace
+  2  datafile 'johny_tabspace.dat'
+  3  size 10M autoextend on;
+
+Create temporary tablespace (Temporaty tablespace is an allocation of space in the database that can contain transient data that persists only for the duration of a session. This transient data cannot be recovered after process or instance failure.):
+
+SQL> create temporary tablespace johny_tabspace_temp
+  2  tempfile 'johny_tabspace_temp.dat'
+  3  size 5M autoextend on;
+
+Create the user:
+
+SQL> create user johny
+  2  identified by 1234
+  3  default tablespace johny_tabspace
+  4  temporary tablespace johny_tabspace_temp;
+
+Grant some privileges:
+
+SQL> grant create session to johny;
+SQL> grant create table to johny;
+SQL> grant unlimited tablespace to johny;
+
+Login as johny and check what privileges he has:
+
+SQL> select * from session_privs;
+
+PRIVILEGE
+----------------------------------------
+CREATE SESSION
+UNLIMITED TABLESPACE
+CREATE TABLE
+
+With create table privilege the user can create tables:
+
+SQL> create table johny_table
+  2  (
+  3     id int not null,
+  4     text varchar2(1000),
+  5     primary key (id)
+  6  );
+
+Insert data:
+
+SQL> insert into johny_table (id, text)
+  2  values (1, 'This is some text.');
+
+Select:
+
+SQL> select * from johny_table;
+
+ID  TEXT
+--------------------------
+1   This is some text.
+
+To get DDL data you can use DBMS_METADATA package that "provides a way for you to retrieve metadata from the database dictionary as XML or creation DDL and to submit the XML to re-create the object.". (with help from http://www.dba-oracle.com/oracle_tips_dbms_metadata.htm)
+
+For table:
+
+SQL> set pagesize 0
+SQL> set long 90000
+SQL> set feedback off
+SQL> set echo off
+SQL> SELECT DBMS_METADATA.GET_DDL('TABLE',u.table_name) FROM USER_TABLES u;
+
+Result:
+
+  CREATE TABLE "JOHNY"."JOHNY_TABLE"
+   (    "ID" NUMBER(*,0) NOT NULL ENABLE,
+        "TEXT" VARCHAR2(1000),
+         PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DE
+FAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "JOHNY_TABSPACE"  ENABLE
+   ) SEGMENT CREATION IMMEDIATE
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DE
+FAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "JOHNY_TABSPACE"
+
+For index:
+
+SQL> set pagesize 0
+SQL> set long 90000
+SQL> set feedback off
+SQL> set echo off
+SQL> SELECT DBMS_METADATA.GET_DDL('INDEX',u.index_name) FROM USER_INDEXES u;
+
+Result:
+
+  CREATE UNIQUE INDEX "JOHNY"."SYS_C0013353" ON "JOHNY"."JOHNY_TABLE" ("ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DE
+FAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "JOHNY_TABS
