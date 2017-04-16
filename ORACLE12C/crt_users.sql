@@ -1,6 +1,3 @@
---
-ALTER SESSION SET CONTAINER = gmoradb1pdb1
-;
 ------------------------
 DROP USER DATAWARE
 ;
