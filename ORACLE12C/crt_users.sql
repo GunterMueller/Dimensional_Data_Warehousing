@@ -3,11 +3,11 @@ DROP USER DATAWARE
 ;
 DROP USER SOURCE
 ;
-CREATE USER DATAWARE IDENTIFIED BY DATAWARE
+CREATE USER DATAWARE IDENTIFIED BY dataware
 default tablespace dataware_data_ts
 temporary tablespace  dataware_temp_ts
 ;
-CREATE USER SOURCE IDENTIFIED BY SOURCE
+CREATE USER SOURCE IDENTIFIED BY source
 default tablespace  source_data_ts
 temporary tablespace source_temp_ts;
 ;
