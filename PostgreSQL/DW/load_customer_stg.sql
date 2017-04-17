@@ -20,7 +20,7 @@ COPY CUSTOMER_STG
 , customer_zip_code 
 , customer_city 
 , customer_state )
-FROM '../../source_data/customer2.csv' DELIMTER ',' CSV HEADER
+FROM '/home/gunter/GM_DATABASES/DataWarehouse/Dimensional_Data_Warehousing/source_data/customer2.csv' DELIMITER ',' CSV HEADER
 ;
 
 /* end of script                                                     */
