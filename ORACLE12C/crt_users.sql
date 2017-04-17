@@ -15,11 +15,15 @@ grant create session to dataware  WITH ADMIN OPTION;
 ;
 grant create table to dataware
 ;
+grant create view to dataware
+;
 grant unlimited tablespace to  dataware
 ;
 grant create session to source  WITH ADMIN OPTION;
 ;
 grant create table to source
+;
+grant create view to source
 ;
 grant unlimited tablespace to  source
 ;
