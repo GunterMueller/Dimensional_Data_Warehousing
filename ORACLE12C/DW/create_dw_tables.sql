@@ -54,7 +54,7 @@ DROP TABLE date_dim
 ;
 CREATE TABLE date_dim 
 ( date_sk INT NOT NULL PRIMARY KEY
-, date DATE
+, dwdate DATE
 , month_name CHAR(9)
 , month INT
 , quarter INT
